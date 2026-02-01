@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Be My Valentine?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            /* Lovie Dovie Pink Gradient */
+            background: linear-gradient(180deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- floating background hearts animation --- */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 2rem;
+            animation: float Up 10s infinite linear;
+            z-index: 0;
+        }
+
+        /* --- Upper Screen Area --- */
+        #screen-area {
+            flex: 1; /* Takes up remaining space (approx 65%) */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #d6336c;
+            font-size: 2.5rem;
+            text-align: center;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+            margin-bottom: 50px;
+            padding: 0 20px;
+            line-height: 1.2;
+            pointer-events: none; /* Let touches pass through */
+        }
+
+        .buttons-container {
+            position: relative;
+            width: 100%;
+            height: 200px; /* Space for buttons to move */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 15px 45px;
+            font-size: 1.3rem;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(214, 51, 108, 0.3);
+            transition: transform 0.1s, box-shadow 0.2s;
+            pointer-events: auto; /* Enable logic interaction */
+        }
+
+        #btn-yes {
+            background-color: #ff477e;
+            color: white;
+            z-index: 20;
+        }
+
+        #btn-yes:active {
+            transform: scale(0.95);
+        }
+
+        #btn-no {
+            background-color: #ffffff;
+            color: #ff477e;
+            position: absolute; /* Allows movement */
+            transition: top 0.15s ease-out, left 0.15s ease-out; /* Fast movement */
+        }
+
+        /* --- The Virtual Cursor (Heart) --- */
+        #virtual-cursor {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            /* Using a heart emoji or shape */
+            font-size: 28px;
+            line-height: 30px;
+            text-align: center;
+            pointer-events: none; 
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- The Touchpad Area --- */
+        #touchpad {
+            height: 35vh; /* Bottom 35% */
+            width: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #d6336c;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            touch-action: none;
+        }
+
+        #touchpad p {
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        #touchpad small {
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        /* --- Success Overlay --- */
+        #success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 10000;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #success-overlay h2 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            color: #ff477e;
+            margin: 0;
+        }
+        
+        #success-overlay p {
+            font-size: 1.5rem;
+            color: #555;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-heart" style="left: 10%; top: 80%; animation-duration: 8s;">❤️</div>
+    <div class="bg-heart" style="left: 80%; top: 60%; animation-duration: 12s;">💖</div>
+    <div class="bg-heart" style="left: 30%; top: 40%; animation-duration: 9s;">💕</div>
+
+    <div id="screen-area">
+        <h1>Will you be my<br>Valentine 😍?</h1>
+        
+        <div class="buttons-container">
+            <button id="btn-yes" class="btn">Yes! 💖</button>
+            <button id="btn-no" class="btn">No 😢</button>
+        </div>
+    </div>
+
+    <div id="virtual-cursor">❤️</div>
+
+    <div id="touchpad">
+        <p>CONTROL AREA</p>
+        <small>Swipe to move the heart • Tap to select</small>
+    </div>
+
+    <div id="success-overlay">
+        <h2>Yay! I love you! ❤️</h2>
+        <p>See you on the 14th! 😘</p>
+    </div>
+
+    <script>
+        // --- Setup ---
+        const cursor = document.getElementById('virtual-cursor');
+        const touchpad = document.getElementById('touchpad');
+        const btnNo = document.getElementById('btn-no');
+        const btnYes = document.getElementById('btn-yes');
+        const screenArea = document.getElementById('screen-area');
+        const successOverlay = document.getElementById('success-overlay');
+
+        let cursorX = window.innerWidth / 2;
+        let cursorY = (window.innerHeight * 0.65) / 2;
+        let prevTouchX = 0;
+        let prevTouchY = 0;
+
+        // Position "No" button initially
+        btnNo.style.left = (window.innerWidth / 2 + 60) + 'px';
+        btnNo.style.top = '75px'; // Relative to container
+        
+        // Position "Yes" button (static via flex, but we track coordinates)
+        
+        // --- 1. Touchpad Movement ---
+        touchpad.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            prevTouchX = touch.clientX;
+            prevTouchY = touch.clientY;
+        }, { passive: false });
+
+        touchpad.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - prevTouchX;
+            const deltaY = touch.clientY - prevTouchY;
+
+            // Sensitivity multiplier
+            const sensitivity = 1.8;
+
+            cursorX += deltaX * sensitivity;
+            cursorY += deltaY * sensitivity;
+
+            // Boundaries
+            cursorX = Math.max(0, Math.min(window.innerWidth, cursorX));
+            cursorY = Math.max(0, Math.min(window.innerHeight, cursorY));
+
+            updateCursorVisual();
+            checkForRunaway();
+
+            prevTouchX = touch.clientX;
+            prevTouchY = touch.clientY;
+        }, { passive: false });
+
+        function updateCursorVisual() {
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+        }
+
+        // --- 2. Tap to Click ---
+        let touchStartTime = 0;
+        touchpad.addEventListener('touchstart', () => { touchStartTime = new Date().getTime(); });
+        touchpad.addEventListener('touchend', () => {
+            if (new Date().getTime() - touchStartTime < 200) attemptClick();
+        });
+
+        function attemptClick() {
+            // Hide cursor momentarily to find what's underneath
+            cursor.style.display = 'none';
+            const element = document.elementFromPoint(cursorX, cursorY);
+            cursor.style.display = 'block';
+
+            if (element && element.id === 'btn-yes') {
+                triggerSuccess();
+            } else if (element && element.id === 'btn-no') {
+                moveNoButton();
+            }
+        }
+
+        function triggerSuccess() {
+            successOverlay.style.display = 'flex';
+            // Simple confetti effect using text characters
+            for(let i=0; i<30; i++) {
+                createConfetti();
+            }
+        }
+
+        function createConfetti() {
+            const conf = document.createElement('div');
+            conf.innerText = ['❤️','💖','🎉','🌹'][Math.floor(Math.random()*4)];
+            conf.style.position = 'fixed';
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.top = '-10vh';
+            conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            conf.style.transition = 'top 3s ease-in, opacity 3s ease-in';
+            conf.style.zIndex = 10001;
+            document.body.appendChild(conf);
+
+            setTimeout(() => {
+                conf.style.top = '110vh';
+                conf.style.opacity = '0';
+            }, 100);
+        }
+
+        // --- 3. Evasive "No" Button ---
+        function checkForRunaway() {
+            const btnRect = btnNo.getBoundingClientRect();
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            const dist = Math.sqrt(Math.pow(cursorX - btnCenterX, 2) + Math.pow(cursorY - btnCenterY, 2));
+
+            // Run away if cursor gets within 130px
+            if (dist < 130) {
+                moveNoButton();
+            }
+        }
+
+        function moveNoButton() {
+            // Move within the upper screen area only
+            const container = document.querySelector('.buttons-container');
+            // We move it relative to the window to be safe, but keep it in upper bounds
+            
+            const padding = 20;
+            const maxY = screenArea.offsetHeight - 50;
+            const maxX = window.innerWidth - btnNo.offsetWidth - padding;
+
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY; // keep in top section
+
+            // Switch to fixed positioning if not already, to break out of flex container flow visually
+            btnNo.style.position = 'absolute';
+            btnNo.style.left = Math.max(padding, randomX) + 'px';
+            btnNo.style.top = Math.max(padding, randomY) + 'px';
+        }
+
+        // Prevent direct touch on screen area (forces touchpad usage)
+        screenArea.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+
+        updateCursorVisual();
+    </script>
+</body>
+</html>
