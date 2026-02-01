@@ -18,7 +18,7 @@
             padding: 0;
             height: 100vh;
             width: 100vw;
-            /* Lovie Dovie Pink Gradient */
+            /* Lovie Dovie Pink Gradient - Kept Permanent */
             background: linear-gradient(180deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             font-family: 'Quicksand', sans-serif;
             overflow: hidden;
@@ -37,7 +37,7 @@
 
         /* --- Upper Screen Area --- */
         #screen-area {
-            flex: 1; /* Takes up remaining space (approx 65%) */
+            flex: 1; 
             position: relative;
             display: flex;
             flex-direction: column;
@@ -55,13 +55,13 @@
             margin-bottom: 50px;
             padding: 0 20px;
             line-height: 1.2;
-            pointer-events: none; /* Let touches pass through */
+            pointer-events: none; 
         }
 
         .buttons-container {
             position: relative;
             width: 100%;
-            height: 200px; /* Space for buttons to move */
+            height: 200px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -76,7 +76,7 @@
             border-radius: 50px;
             box-shadow: 0 5px 15px rgba(214, 51, 108, 0.3);
             transition: transform 0.1s, box-shadow 0.2s;
-            pointer-events: auto; /* Enable logic interaction */
+            pointer-events: auto; 
         }
 
         #btn-yes {
@@ -92,8 +92,8 @@
         #btn-no {
             background-color: #ffffff;
             color: #ff477e;
-            position: absolute; /* Allows movement */
-            transition: top 0.15s ease-out, left 0.15s ease-out; /* Fast movement */
+            position: absolute; 
+            transition: top 0.15s ease-out, left 0.15s ease-out; 
         }
 
         /* --- The Virtual Cursor (Heart) --- */
@@ -103,7 +103,6 @@
             left: 50%;
             width: 30px;
             height: 30px;
-            /* Using a heart emoji or shape */
             font-size: 28px;
             line-height: 30px;
             text-align: center;
@@ -115,7 +114,7 @@
 
         /* --- The Touchpad Area --- */
         #touchpad {
-            height: 35vh; /* Bottom 35% */
+            height: 35vh; 
             width: 100%;
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(10px);
@@ -127,6 +126,7 @@
             color: #d6336c;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
             touch-action: none;
+            z-index: 50;
         }
 
         #touchpad p {
@@ -146,13 +146,14 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.95);
+            background: transparent; /* Transparent to show pink bg */
             z-index: 10000;
-            display: none; /* Hidden by default */
+            display: none; 
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            pointer-events: none; /* Let clicks pass through if needed */
         }
 
         #success-overlay h2 {
@@ -160,11 +161,98 @@
             font-size: 3rem;
             color: #ff477e;
             margin: 0;
+            text-shadow: 0 0 20px rgba(255,255,255,0.8);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         #success-overlay p {
             font-size: 1.5rem;
             color: #555;
+            background: rgba(255,255,255,0.6);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- Fireworks Canvas --- */
+        canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9000;
+            display: none;
+        }
+
+        /* --- Shooting Star --- */
+        .shooting-star {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
+            animation: shoot 3s linear infinite;
+            opacity: 0;
+            z-index: 8000;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 1px;
+            background: linear-gradient(90deg, #fff, transparent);
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: rotate(315deg) translateX(0);
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(315deg) translateX(-1000px);
+                opacity: 0;
+            }
+        }
+
+        /* --- Snackbar (Toast) Notification --- */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(50, 50, 50, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10001;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 40vh; /* Sit just above the touchpad */
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
+            pointer-events: none;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 42vh; /* Slight float up animation */
         }
 
     </style>
@@ -175,14 +263,18 @@
     <div class="bg-heart" style="left: 80%; top: 60%; animation-duration: 12s;">💖</div>
     <div class="bg-heart" style="left: 30%; top: 40%; animation-duration: 9s;">💕</div>
 
+    <canvas id="fireworks"></canvas>
+
     <div id="screen-area">
-        <h1>Will you be my<br>Valentine 😍?</h1>
+        <h1 id="main-title">Will you be my<br>Valentine 😍?</h1>
         
-        <div class="buttons-container">
+        <div class="buttons-container" id="btns-container">
             <button id="btn-yes" class="btn">Yes! 💖</button>
             <button id="btn-no" class="btn">No 😢</button>
         </div>
     </div>
+
+    <div id="snackbar">Text Here</div>
 
     <div id="virtual-cursor">❤️</div>
 
@@ -192,8 +284,10 @@
     </div>
 
     <div id="success-overlay">
-        <h2>Yay! I love you! ❤️</h2>
-        <p>See you on the 14th! 😘</p>
+        <h2>Hehe🙃🙃</h2>
+        <h2>I love you...😘❤️</h2>
+        <p>You have successfully registered for next year of pagalpanti with me (hubby). 😘</p>
+        <div style="font-size: 3rem; margin-top: 20px;">🎉🎉🐶🎉🎉</div>
     </div>
 
     <script>
@@ -204,6 +298,11 @@
         const btnYes = document.getElementById('btn-yes');
         const screenArea = document.getElementById('screen-area');
         const successOverlay = document.getElementById('success-overlay');
+        const mainTitle = document.getElementById('main-title');
+        const btnsContainer = document.getElementById('btns-container');
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        const snackbar = document.getElementById("snackbar");
 
         let cursorX = window.innerWidth / 2;
         let cursorY = (window.innerHeight * 0.65) / 2;
@@ -212,9 +311,7 @@
 
         // Position "No" button initially
         btnNo.style.left = (window.innerWidth / 2 + 60) + 'px';
-        btnNo.style.top = '75px'; // Relative to container
-        
-        // Position "Yes" button (static via flex, but we track coordinates)
+        btnNo.style.top = '75px'; 
         
         // --- 1. Touchpad Movement ---
         touchpad.addEventListener('touchstart', (e) => {
@@ -259,7 +356,6 @@
         });
 
         function attemptClick() {
-            // Hide cursor momentarily to find what's underneath
             cursor.style.display = 'none';
             const element = document.elementFromPoint(cursorX, cursorY);
             cursor.style.display = 'block';
@@ -271,32 +367,23 @@
             }
         }
 
-        function triggerSuccess() {
-            successOverlay.style.display = 'flex';
-            // Simple confetti effect using text characters
-            for(let i=0; i<30; i++) {
-                createConfetti();
-            }
-        }
+        // --- 3. Runaway Logic & Snackbar ---
+        
+        // Message Queue Data
+        const originalMessages = [
+            "Heh..?🤨",
+            "Again...?😒",
+            "You idiot or something...🤨",
+            "😒😒",
+            "try try, but don't cry...😒",
+            "I have all day...",
+            "You don't love me..🥺🥺",
+            "🥺🥺🥺🥺 puppy eyes...",
+            "😒 🔪"
+        ];
+        let messageQueue = [...originalMessages]; // Clone initially
+        let lastToastTime = 0;
 
-        function createConfetti() {
-            const conf = document.createElement('div');
-            conf.innerText = ['❤️','💖','🎉','🌹'][Math.floor(Math.random()*4)];
-            conf.style.position = 'fixed';
-            conf.style.left = Math.random() * 100 + 'vw';
-            conf.style.top = '-10vh';
-            conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
-            conf.style.transition = 'top 3s ease-in, opacity 3s ease-in';
-            conf.style.zIndex = 10001;
-            document.body.appendChild(conf);
-
-            setTimeout(() => {
-                conf.style.top = '110vh';
-                conf.style.opacity = '0';
-            }, 100);
-        }
-
-        // --- 3. Evasive "No" Button ---
         function checkForRunaway() {
             const btnRect = btnNo.getBoundingClientRect();
             const btnCenterX = btnRect.left + btnRect.width / 2;
@@ -304,34 +391,140 @@
 
             const dist = Math.sqrt(Math.pow(cursorX - btnCenterX, 2) + Math.pow(cursorY - btnCenterY, 2));
 
-            // Run away if cursor gets within 130px
             if (dist < 130) {
+                // Before moving, trigger the snackbar logic
+                showTauntingToast();
                 moveNoButton();
             }
         }
 
-        function moveNoButton() {
-            // Move within the upper screen area only
-            const container = document.querySelector('.buttons-container');
-            // We move it relative to the window to be safe, but keep it in upper bounds
+        function showTauntingToast() {
+            const now = Date.now();
+            // Check 2 second interval
+            if (now - lastToastTime < 2000) return;
             
+            lastToastTime = now;
+
+            // Logic: if empty, refill with SHUFFLED list
+            if (messageQueue.length === 0) {
+                // Shuffle original messages
+                messageQueue = [...originalMessages].sort(() => Math.random() - 0.5);
+            }
+
+            // Pop first message
+            const msg = messageQueue.shift();
+
+            // Display Snackbar
+            snackbar.innerText = msg;
+            snackbar.className = "show";
+
+            // Hide after 1 second
+            setTimeout(function(){ 
+                snackbar.className = snackbar.className.replace("show", ""); 
+            }, 1500);
+        }
+
+        function moveNoButton() {
+            const container = document.querySelector('.buttons-container');
             const padding = 20;
             const maxY = screenArea.offsetHeight - 50;
             const maxX = window.innerWidth - btnNo.offsetWidth - padding;
 
             const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY; // keep in top section
+            const randomY = Math.random() * maxY; 
 
-            // Switch to fixed positioning if not already, to break out of flex container flow visually
             btnNo.style.position = 'absolute';
             btnNo.style.left = Math.max(padding, randomX) + 'px';
             btnNo.style.top = Math.max(padding, randomY) + 'px';
         }
 
-        // Prevent direct touch on screen area (forces touchpad usage)
-        screenArea.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+        // --- 4. SUCCESS THEME (Pink + Fireworks) ---
+        function triggerSuccess() {
+            // Hide game elements
+            mainTitle.style.display = 'none';
+            btnsContainer.style.display = 'none';
+            snackbar.style.display = 'none'; // Ensure snackbar is gone
 
+            // Show Success Overlay
+            successOverlay.style.display = 'flex';
+            
+            // Start Fireworks
+            canvas.style.display = 'block';
+            resizeCanvas();
+            loopFireworks();
+
+            // Create Shooting Stars
+            setInterval(createShootingStar, 1500); 
+            createShootingStar(); 
+        }
+
+        // --- Fireworks Engine ---
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createFirework() {
+            const x = Math.random() * canvas.width;
+            const y = canvas.height;
+            const colors = ['#FFFFFF', '#FFD700', '#00FFFF', '#FFFF00', '#FF69B4'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            const targetY = Math.random() * (canvas.height * 0.5);
+            
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: x,
+                    y: targetY,
+                    vx: (Math.random() - 0.5) * 15, 
+                    vy: (Math.random() - 0.5) * 15,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
+        function loopFireworks() {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            if (Math.random() < 0.08) createFirework();
+
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.15; 
+                p.alpha -= 0.015;
+                
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            requestAnimationFrame(loopFireworks);
+        }
+
+        // --- Shooting Stars ---
+        function createShootingStar() {
+            const star = document.createElement('div');
+            star.classList.add('shooting-star');
+            star.style.top = Math.random() * 50 + '%';
+            star.style.left = Math.random() * 100 + '%';
+            document.body.appendChild(star);
+            setTimeout(() => { star.remove(); }, 3000);
+        }
+
+        screenArea.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
         updateCursorVisual();
+
     </script>
 </body>
 </html>
